@@ -157,4 +157,9 @@ static inline int ecrnx_radar_dump_radar_detected(char *buf, size_t len,
 
 #endif /* CONFIG_ECRNX_RADAR */
 
+struct pri_detector;
+struct dfs_pattern_detector;
+struct dfs_pulse_ext;
+struct pri_detector *pri_detector_init(struct dfs_pattern_detector *dpd, u16 arg2, u16 arg3);
+
 #endif // _ECRNX_RADAR_H_

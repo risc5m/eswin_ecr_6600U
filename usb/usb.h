@@ -95,7 +95,11 @@ struct usb_ops {
 	int (*wait_ack)(struct eswin *tr, void* data, const u32 len);
 };
 
+struct eswin; // Forward declarations
+struct sk_buff;
 
+int usb_hif_xmit(struct eswin *tr, struct sk_buff *skb);
+void ecrnx_usb_reset_sync_fw(void);
 
 extern int ecrnx_usb_register_drv(void);
 extern void ecrnx_usb_unregister_drv(void);

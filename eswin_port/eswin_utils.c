@@ -10,6 +10,7 @@
  ******************************************************************************
  */
 
+#include <eswin_utils.h>
 #include <linux/dma-mapping.h>
 #include <linux/etherdevice.h>
 #include <net/sock.h>
@@ -21,15 +22,13 @@
 #include "ecrnx_events.h"
 #include "ecrnx_compat.h"
 
-#include "eswin_utils.h"
-
 typedef int (*fn_send_t)(void * buff, int len, int flag);
 
 
 fn_send_t   ecrnx_host_send;
 
-
-void ecrnx_send_handle_register(void * fn)
+void ecrnx_send_handle_register(void *fn);
+void ecrnx_send_handle_register(void *fn)
 {
 	ecrnx_host_send = (fn_send_t)fn;
 }

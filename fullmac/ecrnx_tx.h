@@ -61,6 +61,7 @@ extern const int ecrnx_tid2hwq[IEEE80211_NUM_TIDS];
  *           (only use when amsdu must be dismantled)
  * @msdu_len Size, in bytes, of the MSDU (without padding nor amsdu header)
  */
+struct ecrnx_txhdr;
 struct ecrnx_amsdu_txhdr {
     struct list_head list;
     size_t map_len;
@@ -224,7 +225,7 @@ struct ecrnx_txhdr {
  */
 
 u16 ecrnx_select_txq(struct ecrnx_vif *ecrnx_vif, struct sk_buff *skb);
-int ecrnx_start_xmit(struct sk_buff *skb, struct net_device *dev);
+netdev_tx_t ecrnx_start_xmit(struct sk_buff *skb, struct net_device *dev);
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0))
 int ecrnx_start_mgmt_xmit(struct ecrnx_vif *vif, struct ecrnx_sta *sta,
@@ -265,5 +266,5 @@ int ecrnx_dbgfs_print_sta(char *buf, size_t size, struct ecrnx_sta *sta,
 void ecrnx_txq_credit_update(struct ecrnx_hw *ecrnx_hw, int sta_idx, u8 tid,
                             s8 update);
 void ecrnx_tx_push(struct ecrnx_hw *ecrnx_hw, struct ecrnx_txhdr *txhdr, int flags);
-
+void ecrnx_tx_retry_usb(struct ecrnx_hw *ecrnx_hw, struct sk_buff *skb, struct ecrnx_txhdr *txhdr, bool retry);
 #endif /* _ECRNX_TX_H_ */

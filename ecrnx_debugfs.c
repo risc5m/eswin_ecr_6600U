@@ -2203,7 +2203,7 @@ static void ecrnx_sta_work(struct work_struct *ws)
     return;
 }
 
-void _ecrnx_dbgfs_sta_write(struct ecrnx_debugfs *ecrnx_debugfs, uint8_t sta_idx)
+static void _ecrnx_dbgfs_sta_write(struct ecrnx_debugfs *ecrnx_debugfs, uint8_t sta_idx)
 {
     if (ecrnx_debugfs->unregistering)
         return;

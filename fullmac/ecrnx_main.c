@@ -610,8 +610,16 @@ static void ecrnx_csa_finish(struct work_struct *ws)
 
         spin_unlock_bh(&ecrnx_hw->cb_lock);
 
-        cfg80211_ch_switch_notify(vif->ndev, &csa->chandef, 0, 0);
-}
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 12, 0))
+    /* Your RISC-V 6.12 kernel specifically wants 3 arguments */
+    cfg80211_ch_switch_notify(vif->ndev, &csa->chandef, GFP_KERNEL);
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0))
+    /* Your x86 6.8 kernel wants 4 arguments */
+    cfg80211_ch_switch_notify(vif->ndev, &csa->chandef, 0, GFP_KERNEL);
+#else
+    cfg80211_ch_switch_notify(vif->ndev, &csa->chandef, GFP_KERNEL);
+#endif
+    }
 #else
     else {
         mutex_lock(&vif->wdev.mtx);
@@ -809,6 +817,13 @@ int ecrnx_rsne_to_connect_params(const struct ecrnx_element *rsne,
 static int ecrnx_open(struct net_device *dev)
 {
     struct ecrnx_vif *ecrnx_vif = netdev_priv(dev);
+    if (is_zero_ether_addr(dev->dev_addr)) {
+        ecrnx_printk_always("[ecrnx] Zero MAC detected! Forcing random address...\n");
+        eth_hw_addr_random(dev);
+    }
+    if (is_zero_ether_addr(dev->dev_addr)) {
+         return -1;
+    }
     struct ecrnx_hw *ecrnx_hw = ecrnx_vif->ecrnx_hw;
     struct mm_add_if_cfm add_if_cfm;
     int error = 0;
@@ -1220,6 +1235,12 @@ static struct wireless_dev *ecrnx_interface_add(struct ecrnx_hw *ecrnx_hw,
 #ifdef ECRNX_MODERN_KERNEL
         // For kernel 6.0+
         u8 new_addr[ETH_ALEN];
+
+	if (is_zero_ether_addr(ecrnx_hw->wiphy->perm_addr)) {
+            eth_random_addr(ecrnx_hw->wiphy->perm_addr);
+            printk(KERN_INFO "[ecrnx] Permanent MAC was zero, generated random base: %pM\n", ecrnx_hw->wiphy->perm_addr);
+        }
+
         memcpy(new_addr, ecrnx_hw->wiphy->perm_addr, ETH_ALEN);
 
         if (ecrnx_hw->mod_params->custom_macrule == 0) {
@@ -2012,7 +2033,7 @@ static int ecrnx_cfg80211_add_station(struct wiphy *wiphy, struct net_device *de
                 struct station_info sinfo;
                 u8 ie_offset;
 
-                if((!is_multicast_sta(sta->sta_idx)) && (sta->mac_addr)) {
+                if((!is_multicast_sta(sta->sta_idx)) && (!is_zero_ether_addr(sta->mac_addr))) {
                     memset(&sinfo, 0, sizeof(sinfo));
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 0, 0)
@@ -3070,13 +3091,14 @@ send_frame:
 #endif
 }
 
-/**
- * @start_radar_detection: Start radar detection in the driver.
- */
 static int ecrnx_cfg80211_start_radar_detection(struct wiphy *wiphy,
                                         struct net_device *dev,
                                         struct cfg80211_chan_def *chandef,
-                                        u32 cac_time_ms)
+                                        u32 cac_time_ms
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0) || LINUX_VERSION_CODE >= KERNEL_VERSION(6, 12, 0))
+                                        , int cac_priority
+#endif
+                                        )
 {
     struct ecrnx_hw *ecrnx_hw = wiphy_priv(wiphy);
     struct ecrnx_vif *ecrnx_vif = netdev_priv(dev);

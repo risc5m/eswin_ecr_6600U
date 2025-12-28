@@ -895,7 +895,7 @@ static void ecrnx_rx_add_rtap_hdr(struct ecrnx_hw* ecrnx_hw,
         while ((pos - (u8 *)rtap) & 1)
             pos++;
         rtap->it_present |= cpu_to_le32(1 << IEEE80211_RADIOTAP_HE);
-        memcpy(pos, &he, sizeof(he));
+        unsafe_memcpy(pos, &he, sizeof(he), "Radiotap HE field addition");
         pos += sizeof(he);
     }
 

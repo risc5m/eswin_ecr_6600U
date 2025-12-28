@@ -14,7 +14,7 @@
 #include "core.h"
 #include "usb.h"
 #include "fw_head_check.h"
-
+#include "fw.h"
 extern char *fw_name;
 
 #define MAX_PACKET_SIZE 512

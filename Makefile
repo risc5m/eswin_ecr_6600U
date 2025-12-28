@@ -105,7 +105,7 @@ subdir-ccflags-y += -DCONFIG_ECRNX_DBG_MASK=$(CONFIG_ECRNX_DBG_MASK)
 subdir-ccflags-y += -DCONFIG_ECRNX_KERNEL_VERSION=$(shell echo $(VERSION).$(PATCHLEVEL))
 
 # Add this after the kernel version definition
-ifeq ($(shell [ $(VERSION) -ge 6 ] && echo 0 || echo 1),0)
+ifeq ($(shell [ -n "$(VERSION)" ] && [ "$(VERSION)" -ge 6 ] && echo 0 || echo 1),0)
 subdir-ccflags-y += -DECRNX_MODERN_KERNEL
 endif
 
@@ -170,7 +170,7 @@ else
 endif
 	@find -iname "*.o" -o -iname "*.cmd" -o -iname "Module.symvers" | xargs rm -rf
 	@find -iname "*.mod" -o -iname "*.mod.c" -o -iname "modules.order" | xargs rm -rf
-
+	@cp -v $(DRIVER_PATH)/firmware/ECR6600U_transport.bin /lib/firmware/
 copy:
 	cp -f $(DRIVER_PATH)/fullmac/$(ECRNX_MODULE_NAME).ko $(MODDESTDIR)
 

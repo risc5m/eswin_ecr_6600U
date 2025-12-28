@@ -7,7 +7,7 @@
 #include "fw_head_check.h"
 
 #include <linux/etherdevice.h>
-
+#include <linux/types.h>
 
 
 #define HOST_DRIVER_VERSION     "1.0.0"
@@ -149,6 +149,13 @@ typedef struct
     }u;
 }debugfs_info_t;
 
+void ecrnx_debugfs_param_send(debugfs_info_t *req);
+int cli_parse_args(uint8_t* str, char* argv[]);
+void argv_display(uint32_t argc, char* argv[]);
+int _atoi(char *pstr);
+int cli_check_parm_num(uint32_t index, uint8_t *param);
+int cli_check_parm_range(uint32_t start_index, uint32_t index, uint32_t argc, char* argv[]);
+
 typedef struct
 {
     uint32_t debugfs_type;
@@ -166,6 +173,7 @@ extern u32 reg_buf[512];
 void ecrnx_debug_param_send(dbg_req_t *req);
 
 struct ring_buffer *usb_dbg_buf_get(void);
+void usb_dbg_printf(void *data, int len);
 
 int ecrnx_cfg80211_dump_station(struct wiphy *wiphy, struct net_device *dev,
                                       int idx, u8 *mac, struct station_info *sinfo);
@@ -217,5 +225,6 @@ int cli_cmd_parse(uint8_t *cmd);
 uint8_t parse_fw_info(struct eswin *tr, bin_head_data *phead);
 bool fw_crc_check(struct eswin *tr,bin_head_data head);
 bool fw_magic_check(struct eswin *tr,bin_head_data head);
+void usb_dbg_printf(void *data, int len);
 
 #endif

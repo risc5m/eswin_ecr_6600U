@@ -129,5 +129,25 @@ int ecrnx_rx_reord_single_msdu(struct ecrnx_hw *ecrnx_hw, struct ecrnx_vif *ecrn
 void ecrnx_rx_reord_timeout_handler(struct timer_list *t);
 void ecrnx_rx_reord_timeout_worker(struct work_struct *work);
 
+int ecrnx_data_cfm_callback(void *priv, void *host_id);
+int ecrnx_msg_cfm_callback(void *priv, void *host_id);
+
+/* 1. Forward Declarations (tells the compiler these exist (stops warnings on compile)) */
+struct sk_buff;
+struct ecrnx_hw;
+struct ecrnx_vif;
+struct reord_cntrl;
+struct reord_msdu_info;
+struct hw_rxhdr;
+struct rxu_stat_mm;
+
+/* 2. New function prototypes */
+int ecrnx_rx_reord_tid_flush(struct ecrnx_hw *ecrnx_hw, struct ecrnx_vif *ecrnx_vif, struct sk_buff *skb, u8 sta_idx, u8 tid);
+int ecrnx_rx_reord_sn_check(struct reord_cntrl *reord_cntrl, u16 sn);
+int ecrnx_rx_reord_msdu_insert(struct reord_cntrl *reord_cntrl, struct reord_msdu_info *pmsdu);
+void ecrnx_rx_reord_check(struct ecrnx_hw *ecrnx_hw, struct ecrnx_vif *ecrnx_vif, struct hw_rxhdr *hw_rxhdr, struct sk_buff *skb, struct rxu_stat_mm* orignal_rxu_state);
+u8 ecrnx_rx_agg_data_ind(struct ecrnx_hw *ecrnx_hw, u16_l status, struct sk_buff* skb, int msdu_offset);
+int ecrnx_data_cfm_callback(void *priv, void *host_id);
+int ecrnx_msg_cfm_callback(void *priv, void *host_id);
 
 #endif /* _ECRNX_RX_H_ */

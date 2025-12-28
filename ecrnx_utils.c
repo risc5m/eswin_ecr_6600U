@@ -13,6 +13,7 @@
 #include "ecrnx_debugfs.h"
 #include "ecrnx_prof.h"
 #include "ipc_host.h"
+#include "fullmac/ecrnx_debugfs_func.h"
 
 #ifdef CONFIG_ECRNX_ESWIN_SDIO
 #include "eswin_utils.h"
@@ -95,7 +96,7 @@ void ecrnx_ipc_elem_var_deallocs(struct ecrnx_hw *ecrnx_hw,
  * @ecrnx_hw: Main driver data
  * @elem: Pointer to the skb elem that will contain the address of the buffer
  */
-static int ecrnx_ipc_skb_elem_allocs(struct ecrnx_hw *ecrnx_hw,
+static __maybe_unused int ecrnx_ipc_skb_elem_allocs(struct ecrnx_hw *ecrnx_hw,
                                  struct ecrnx_ipc_skb_elem *elem, size_t skb_size,
                                  enum dma_data_direction dir,
                                  int (*push)(struct ipc_host_env_tag *,
@@ -314,9 +315,6 @@ static void ecrnx_sec_tbtt_ind(void *pthis)
  * @hostid: Pointer to IPC elem from dbgmsgs_pool
  */
  
-#ifdef CONFIG_ECRNX_ESWIN_USB
- extern void usb_dbg_printf(void * data, int len);
-#endif
 static u8 ecrnx_dbgind(void *pthis, void *hostid)
 {
     u8 ret = 0;

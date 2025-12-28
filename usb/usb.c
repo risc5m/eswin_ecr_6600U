@@ -14,6 +14,7 @@
 #include <linux/kthread.h>
 #include <linux/gpio.h>
 #include <linux/timer.h>
+#include "fullmac/ecrnx_debugfs_func.h"
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)
 #include <uapi/linux/sched/types.h>
 #endif
@@ -197,7 +198,7 @@ static void usb_transmit_complete(struct urb *urb)
 }
 
 
-void usb_rx_timer_handle(struct timer_list *time)
+static void usb_rx_timer_handle(struct timer_list *time)
 {
     if (rx_packets)
     {
@@ -479,8 +480,8 @@ static int eswin_tx_comp_thread(void *data)
             continue;
         }
 
-        usb_tx_comp_work(&g_usb->infac_msg.pipe_tx);
-        usb_tx_comp_work(&g_usb->infac_data.pipe_tx);
+        usb_tx_comp_work(&g_usb->infac_msg.pipe_tx.io_complete_work);
+        usb_tx_comp_work(&g_usb->infac_data.pipe_tx.io_complete_work);
     }
     ecrnx_printk_trans("tx pkg thread exit\n");
     return 0;
@@ -514,8 +515,8 @@ static int eswin_rx_comp_thread(void *data)
         {
             continue;
         }
-        usb_rx_comp_work(&g_usb->infac_msg.pipe_rx);
-        usb_rx_comp_work(&g_usb->infac_data.pipe_rx);
+        usb_rx_comp_work(&g_usb->infac_msg.pipe_rx.io_complete_work);
+        usb_rx_comp_work(&g_usb->infac_data.pipe_rx.io_complete_work);
     }
     ecrnx_printk_trans("rx pkg thread exit\n");
     return 0;
@@ -570,15 +571,15 @@ struct timer_list data_time_st;
 struct timer_list msg_time_st;
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0)
-void data_timer_handle(struct timer_list *timer)
+static void data_timer_handle(struct timer_list *timer)
 #else
-void data_timer_handle(unsigned long data)
+static void data_timer_handle(unsigned long data)
 #endif
 {
     usb_refill_recv_transfer(&g_usb->infac_data.pipe_rx);
 }
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0)
-void msg_timer_handle(struct timer_list *timer)
+static void msg_timer_handle(struct timer_list *timer)
 #else
 void msg_timer_handle(unsigned long data)
 #endif

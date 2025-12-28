@@ -46,13 +46,55 @@
  * CFG80211
  *****************************************************************************/
  
- #if LINUX_VERSION_CODE > KERNEL_VERSION(5, 12, 0)
-#define regulatory_set_wiphy_regd_sync_rtnl regulatory_set_wiphy_regd_sync
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0)
+    /* Fix for cfg80211_cac_event */
+    #undef cfg80211_cac_event
+    #if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 12, 0))
+        /* RISC-V 6.12 needs 5 arguments (it added link_id) */
+        #define cfg80211_cac_event(dev, chan, event, ...) \
+            cfg80211_cac_event(dev, chan, event, GFP_KERNEL, 0)
+    #else
+        /* x86 6.8 only needs 4 arguments */
+        #define cfg80211_cac_event(dev, chan, event, ...) \
+            cfg80211_cac_event(dev, chan, event, GFP_KERNEL)
+    #endif
+    
+    /* Fix for ch_switch_started_notify */  
+    #undef cfg80211_ch_switch_started_notify
+    #if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 12, 0))
+        /* RISC-V 6.12 needs 5 arguments */
+        #define cfg80211_ch_switch_started_notify(dev, chandef, count, ...) \
+            cfg80211_ch_switch_started_notify(dev, chandef, 0, count, false)   
+    #else
+        /* x86 6.8 needs 6 arguments */
+        #define cfg80211_ch_switch_started_notify(dev, chandef, count, ...) \
+            cfg80211_ch_switch_started_notify(dev, chandef, 0, 0, count, false)
+    #endif
+
+    /* Fix for radar_event: (wiphy, chan, gfp) - 3 arguments */
+    #undef cfg80211_radar_event
+    #define cfg80211_radar_event(wiphy, chan, ...) \
+        cfg80211_radar_event(wiphy, chan, GFP_KERNEL)
+
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 0, 0)
+    /* For Kernel 6.0 - 6.2 */
+    #undef cfg80211_ch_switch_started_notify
+    #define cfg80211_ch_switch_started_notify(dev, chandef, ...) \
+        cfg80211_ch_switch_started_notify(dev, chandef, true)
+    
+    #undef cfg80211_cac_event
+    #define cfg80211_cac_event(dev, chan, event, ...) \
+        cfg80211_cac_event(dev, chan, event, GFP_KERNEL, 0)
+
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 11, 0)
+    /* For Kernel 5.11 - 5.19 */
+    #undef cfg80211_ch_switch_started_notify
+    #define cfg80211_ch_switch_started_notify(dev, chandef, cac, count, ...) \
+        cfg80211_ch_switch_started_notify(dev, chandef, 0, count, true)
 #endif
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(5, 11, 0)
-#define cfg80211_ch_switch_started_notify(dev, chandef, count) \
-    cfg80211_ch_switch_started_notify(dev, chandef, 0, count, true, 0);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(5, 12, 0)
+#define regulatory_set_wiphy_regd_sync_rtnl regulatory_set_wiphy_regd_sync
 #endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5, 1, 0)
@@ -528,6 +570,7 @@ typedef __s64 time64_t;
 #endif // 4.14
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6,0,0)
+#ifndef ECRNX_MODERN_KERNEL
 #define ECRNX_MODERN_KERNEL
 #endif
 
@@ -544,4 +587,6 @@ int ecrnx_cfg80211_set_channel(struct wiphy *wiphy,
 
 int ecrnx_cfg80211_probe_client(struct wiphy *wiphy, struct net_device *dev,
             const u8 *peer, u64 *cookie);
+
+#endif /* _ECRNX_COMPAT_H_ */
 

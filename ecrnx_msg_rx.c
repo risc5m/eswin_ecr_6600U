@@ -9,6 +9,7 @@
  *
  ****************************************************************************************
  */
+#include "ecrnx_msg_rx.h"
 #include "ecrnx_defs.h"
 #include "ecrnx_prof.h"
 #include "ecrnx_tx.h"
@@ -235,8 +236,8 @@ static inline int ecrnx_rx_remain_on_channel_exp_ind(struct ecrnx_hw *ecrnx_hw,
     if (ecrnx_hw->roc_cookie == 0)
         ecrnx_hw->roc_cookie = 1;
 
-#if CONFIG_ECRNX_P2P
-	ecrnx_hw->p2p_listen.listen_started = 0;
+#ifdef CONFIG_ECRNX_P2P
+        ecrnx_hw->p2p_listen.listen_started = 0;
 #endif
 
     /* Free the allocated RoC element */

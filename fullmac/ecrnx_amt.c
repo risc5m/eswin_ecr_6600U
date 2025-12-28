@@ -14,6 +14,7 @@
 #include "eswin_utils.h"
 #include "ecrnx_calibration_data.h"
 #include "ecrnx_cfgfile.h"
+#include "ecrnx_amt.h"
 
 #ifdef CONFIG_ECRNX_WIFO_CAIL
 #define AMT_GAIN_DELTA_MSG_FLAG ("gaindelta=")
@@ -111,7 +112,8 @@ int ecrnx_amt_init(void *ecrnx_plat)
 	ndev->wireless_handlers = &ecrnx_wext_handler_def;
 #endif
 	/* clear the mac address */
-	memset(ndev->dev_addr, 0, ETH_ALEN);
+	u8 zero_addr[ETH_ALEN] = {0};
+	eth_hw_addr_set(ndev, zero_addr);
 
 	if (register_netdev(ndev) != 0)
         goto err_dev;
@@ -143,7 +145,11 @@ void ecrnx_amt_deinit(void)
 	amt_vif.ndev = NULL;
 }
 #endif
+#ifndef _ECRNX_AMT_H_
+#define _ECRNX_AMT_H_
 
- 
+/* Prototype declarations */
+int ecrnx_amt_config_msg_send(void);
+int ecrnx_amt_init(void *ecrnx_plat);
 
-
+#endif

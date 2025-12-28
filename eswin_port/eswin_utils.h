@@ -11,6 +11,16 @@
  */
 
 #ifndef _ESWIN_UTILS_H_
+#include <linux/types.h>    // Fixes u8, u32, uint8_t, uint32_t, etc.
+#include <linux/list.h>     // Fixes struct list_head
+#include <linux/skbuff.h>   // For struct sk_buff (used in frame_send)
+
+/* Forward declarations to fix the "not visible outside" warnings */
+struct ecrnx_hw;
+struct txdesc_api;
+struct ecrnx_cmd;
+struct ecrnx_element;
+
 #define _ESWIN_UTILS_H_
 
 #if defined(CONFIG_ECRNX_ESWIN_SDIO)
