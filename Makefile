@@ -170,7 +170,6 @@ else
 endif
 	@find -iname "*.o" -o -iname "*.cmd" -o -iname "Module.symvers" | xargs rm -rf
 	@find -iname "*.mod" -o -iname "*.mod.c" -o -iname "modules.order" | xargs rm -rf
-	@cp -v $(DRIVER_PATH)/firmware/ECR6600U_transport.bin /lib/firmware/
 copy:
 	cp -f $(DRIVER_PATH)/fullmac/$(ECRNX_MODULE_NAME).ko $(MODDESTDIR)
 
